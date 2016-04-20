@@ -8,7 +8,8 @@
  */
 'use strict';
 
-var util = require('util');
+var log4js = require('log4js'),
+    util = require('util');
 
 module.exports = {
     appender: appender,
@@ -23,8 +24,8 @@ function appender(level, options) {
             const LogmetClient = require('@alchemy-kms/logmet-client').LogmetClient;
 
             const group_id = options.group_id;
-            const logging_token = process.options.logging_token;
-            const space_id = process.options.space_id;
+            const logging_token = options.logging_token;
+            const space_id = options.space_id;
             const logging_host = options.logging_host;
             const metrics_host = options.metrics_host;
             const logging_port = options.logging_port;
@@ -73,7 +74,7 @@ function appender(level, options) {
 
             metrics_client.addMetricMessages(metrics);
 
-            var message = log.data.join(' | ');
+            const message = log.data.join(' | ');
             const log_entry = new Map();
             log_entry.set('component', options.group_id);
             log_entry.set('type', metric_type);
@@ -82,29 +83,31 @@ function appender(level, options) {
 
             const logs = [];
 
-            for (let msg_count = 0; msg_count < 10; msg_count++) {
+            for (var msg_count = 0; msg_count < 10; msg_count++) {
                 logs.push(new Map(log_entry));
             }
         }
     };
 };
 
-function configure() {
+function configure(config) {
+	if (process.env.log4js_logmet_enabled !== 'true') return function() {};
+
     const options = {
-        group_id: 'otc-api-test',
-        logging_token: 'cyD6RSQK3SX4',
-        space_id: '7283c612-efc3-4930-98df-2a60952a7920',
-        logging_host: 'logs.opvis.bluemix.net',
-        metrics_host: 'metrics.opvis.bluemix.net',
-        logging_port: 9091,
-        metrics_port: 9095
+        group_id: process.env.log4js_logmet_group_id || config.options && config.options.group_id,
+        logging_token: process.env.log4js_logmet_logging_token || config.options && config.options.logging_token,
+        space_id: process.env.log4js_logmet_space_id || config.options && config.options.space_id,
+        logging_host: process.env.log4js_logmet_logging_host || config.options && config.options.logging_host,
+        metrics_host: process.env.log4js_logmet_metrics_host || config.options && config.options.metrics_host,
+        logging_port: process.env.log4js_logmet_logging_port || config.options && config.options.logging_port,
+        metrics_port: process.env.log4js_logmet_metrics_port || config.options && config.options.metrics_port
     };
 
-    const optionsInvalid = false;
+    var optionsInvalid = false;
 
     for (var i in options) {
         if (!options[i]) {
-            util.log(options[i] + ' not specified');
+            util.log('Logmet appender: ' + i + ' not specified');
             optionsInvalid = true;
         }
     }
@@ -117,7 +120,7 @@ function configure() {
     }
 
     const level = log4js.levels[config.options.level] && log4js.levels[config.options.level].level || Number.MIN_VALUE;
-    
+
     util.log('Logmet appender configured');
     return appender(level, options);
 };
