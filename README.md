@@ -5,12 +5,12 @@ Logmet appender for node-log4js
  * Set the following environment variables:
 
  ```
-    log4js_logmet_enabled = true
-    log4js_logmet_component = otc-api-local-test
-    log4js_logmet_logging_token = <secureToken>
-    log4js_logmet_space_id = <yourSpaceId>
-    log4js_logmet_logging_host = 'logs.stage1.opvis.bluemix.net'
-    log4js_logmet_logging_port = 9091
+    export log4js_logmet_appender_enabled=true
+    export log4js_logmet_component=otc-api-local-test
+    export log4js_logmet_logging_token=<secureToken>
+    export log4js_logmet_space_id=<yourSpaceId>
+    export log4js_logmet_logging_host=logs.stage1.opvis.bluemix.net
+    export log4js_logmet_logging_port=9091
 ```
 
  * To get the secure token and space id see the instructions here: https://pages.github.ibm.com/alchemy-logmet/getting-started/authentication.html
