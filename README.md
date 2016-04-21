@@ -5,7 +5,7 @@ Logmet appender for node-log4js
  * Set the following environment variables:
 
  ```
-    export log4js_logmet_appender_enabled=true
+    export log4js_logmet_enabled=true
     export log4js_logmet_component=otc-api-local-test
     export log4js_logmet_logging_token=<secureToken>
     export log4js_logmet_space_id=<yourSpaceId>
