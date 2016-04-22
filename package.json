@@ -13,7 +13,7 @@
   "author": "",
   "license": "IBM",
   "dependencies": {
-    "@alchemy-kms/logmet-client": "^0.2.6",
+    "lodash": "^4.11.1",
     "log4js": "^0.6.35"
   }
 }
