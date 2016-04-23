@@ -105,6 +105,9 @@ function logMessage(log, options) {
     log_entry.set('component', options.component);
     log_entry.set('type', log.categoryName);
     log_entry.set('message', logData);
+    var currentTime = Math.floor(Date.now() / 1000);
+    log_entry.set('timestamp', currentTime);
+    log_entry.set('ALCH_TENANT_ID', options.space_id);
 
     var logBuffer = _formatToLogBuffer(log_entry);
 
