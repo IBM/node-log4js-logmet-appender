@@ -64,9 +64,9 @@ function connected(message, options) {
 };
 
 function formatMessage(message) {
-    const buffer_size = 2                       //  '1W'
-        + 4                                     //  Number of messages, 32 Uint BE
-        + ((2 + 4 + 4) * 1)       //  Msg delimiter + sequence + msg #s
+    const buffer_size = 2  //  '1W'
+        + 4                //  Number of messages, 32 Uint BE
+        + 2 + 4            //  Msg delimiter + sequence
         + message.length;
 
 
