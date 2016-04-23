@@ -24,7 +24,7 @@ function appender(level, options, tlsOpts) {
         if (!logmetConnection.connection && !logmetConnection.connecting) {
             logmetConnection.connecting = true;
             logmetConnection.connection = tls.connect(tlsOpts, connected.bind(this, log, options));
-            logmetConnection.connection.setEncoding('utf8');
+            logmetConnection.connection.setEncoding('binary');
             logmetConnection.connection.on('error', function(err) {
                 console.error('error in connection. Error: ' + JSON.stringify(err, null, 2));
                 logmetConnection.connection = null;
@@ -73,7 +73,7 @@ function formatMessage(message) {
         var payload = new Buffer(buffer_size);
         var offset = 0;
 
-        payload.write(logmetConnection.WINDOW_DELIMITER, offset, logmetConnection.WINDOW_DELIMITER.length, 'utf8');
+        payload.write(logmetConnection.WINDOW_DELIMITER, offset, logmetConnection.WINDOW_DELIMITER.length, 'binary');
         offset += logmetConnection.WINDOW_DELIMITER.length;
 
         payload.writeUInt32BE(1, offset);
@@ -81,14 +81,14 @@ function formatMessage(message) {
 
         var message_delimiter = logmetConnection.LOG_DELIMITER;
 
-        payload.write(message_delimiter, offset, message_delimiter.length, 'utf8');
+        payload.write(message_delimiter, offset, message_delimiter.length, 'binary');
         offset += message_delimiter.length;
 
         payload.writeUInt32BE(logmetConnection.sequence, offset);
         offset += 4;
 
 
-        payload.write(message.toString(), offset, message.length, 'utf8');
+        payload.write(message.toString(), offset, message.length, 'binary');
 
         offset += message.length;
 
@@ -117,7 +117,7 @@ function logMessage(log, options) {
 
     if (isOpen()) {
             logmetConnection.connection.pause();
-            logmetConnection.connection.write(formattedMessage, 'utf8', function onSendMessagesWriteCallback() {
+            logmetConnection.connection.write(formattedMessage, 'binary', function onSendMessagesWriteCallback() {
                     console.log('Messages sent to Logmet...' + formattedMessage);
 
                     logmetConnection.connection.once('data', function handleSendMessagesReply(reply) {
@@ -158,13 +158,13 @@ function _formatToLogBuffer(log_data) {
         log_message.writeUInt32BE(key.length, offset);
         offset += 4;
 
-        log_message.write(key, offset, key.length, 'utf8');
+        log_message.write(key, offset, key.length, 'binary');
         offset += key.length;
 
         log_message.writeUInt32BE(value.length, offset);
         offset += 4;
 
-        log_message.write(value, offset, value.length, 'utf8');
+        log_message.write(value, offset, value.length, 'binary');
         offset += value.length;
     });
 
@@ -198,15 +198,15 @@ var _identify = function(on_identify_callback) {
         const identification_message = new Buffer(IDENTIFIER_PREFIX.length + 1 + identifier.length);
 
         let offset = 0;
-        identification_message.write(IDENTIFIER_PREFIX, offset, IDENTIFIER_PREFIX.length, 'utf8');
+        identification_message.write(IDENTIFIER_PREFIX, offset, IDENTIFIER_PREFIX.length, 'binary');
         offset += IDENTIFIER_PREFIX.length;
 
         identification_message.writeUInt8(identifier.length, offset);
         offset += 1;
 
-        identification_message.write(identifier, offset, identifier.length, 'utf8');
+        identification_message.write(identifier, offset, identifier.length, 'binary');
 
-        logmetConnection.connection.write(identification_message, 'utf8');
+        logmetConnection.connection.write(identification_message, 'binary');
 
         on_identify_callback(null);
     } else {
@@ -230,23 +230,23 @@ var _authenticate = function(options, on_authenticate_callback) {
 
         let offset = 0;
 
-        authentication_message.write(tenant_type, offset, tenant_type.length, 'utf8');
+        authentication_message.write(tenant_type, offset, tenant_type.length, 'binary');
         offset += tenant_type.length;
 
         authentication_message.writeUInt8(tenant_id.length, offset);
         offset += 1;
 
         authentication_message.write(tenant_id, offset,
-            tenant_id.length, 'utf8');
+            tenant_id.length, 'binary');
         offset += tenant_id.length;
 
         authentication_message.writeUInt8(tenant_password.length, offset);
         offset += 1;
 
         authentication_message.write(tenant_password, offset,
-            tenant_password.length, 'utf8');
+            tenant_password.length, 'binary');
 
-        logmetConnection.connection.write(authentication_message, 'utf8', function onAuthenticationWriteCallback() {
+        logmetConnection.connection.write(authentication_message, 'binary', function onAuthenticationWriteCallback() {
             logmetConnection.connection.once('data', function handleAuthenticationReply(reply) {
                     if (reply.slice(0, 2) === logmetConnection.SUCCESS) {
                         logmetConnection.sequence = 1;
