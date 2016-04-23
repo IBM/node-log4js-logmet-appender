@@ -48,7 +48,6 @@ function appender(level, options, tlsOpts) {
 };
 
 function connected(message, options) {
-    logmetConnection.connecting = false;
     _identify(function(err) {
         if (err) {
             console.error('Failed to send identity to Logmet: ' + JSON.stringify(err, null, 2));
@@ -56,6 +55,7 @@ function connected(message, options) {
         }
         else {
             _authenticate(options, function() {
+                logmetConnection.connecting = false;
                 logMessage(message, options);
             });
             
@@ -97,7 +97,7 @@ function formatMessage(message) {
 };
 
 function logMessage(log, options) {
-    if (!logmetConnection.connection) {
+    if (!logmetConnection.connection || logmetConnection.connecting == true) {
         return setTimeout(logMessage.bind(this, log, options), 100);
     }
     var logData = log.data.join(' | ');
