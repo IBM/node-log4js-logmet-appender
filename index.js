@@ -65,35 +65,37 @@ function connected(message, options) {
 
 function formatMessage(message) {
     const buffer_size = 2  //  '1W'
-        + 4                //  Number of messages, 32 Uint BE
-        + 2 + 4            //  Msg delimiter + sequence
-        + message.length;
+      + 4                //  Number of messages, 32 Uint BE
+      + 2 + 4            //  Msg delimiter + sequence
+
+    var payload = new Buffer(buffer_size);
+    var offset = 0;
+
+    payload.write(logmetConnection.WINDOW_DELIMITER, offset, logmetConnection.WINDOW_DELIMITER.length, 'utf8');
+    offset += logmetConnection.WINDOW_DELIMITER.length;
+
+    payload.writeUInt32BE(1, offset);
+    offset += 4;
+
+    var message_delimiter = logmetConnection.LOG_DELIMITER;
+
+    payload.write(message_delimiter, offset, message_delimiter.length, 'utf8');
+    offset += message_delimiter.length;
+
+    payload.writeUInt32BE(logmetConnection.sequence, offset);
+    offset += 4;
 
 
-        var payload = new Buffer(buffer_size);
-        var offset = 0;
+    payload.write(message.toString(), offset, message.length, 'binary');
 
-        payload.write(logmetConnection.WINDOW_DELIMITER, offset, logmetConnection.WINDOW_DELIMITER.length, 'binary');
-        offset += logmetConnection.WINDOW_DELIMITER.length;
+    offset += message.length;
+    // console.log(getDateTimestamp() + ' message: ' + message.toString());
+    // console.log(getDateTimestamp() + ' message.length: ' + message.length);
+    // console.log(getDateTimestamp() + ' buffer_size: ' + buffer_size);
+    // console.log(getDateTimestamp() + ' payload size: ' + payload.length);
 
-        payload.writeUInt32BE(1, offset);
-        offset += 4;
-
-        var message_delimiter = logmetConnection.LOG_DELIMITER;
-
-        payload.write(message_delimiter, offset, message_delimiter.length, 'binary');
-        offset += message_delimiter.length;
-
-        payload.writeUInt32BE(logmetConnection.sequence, offset);
-        offset += 4;
-
-
-        payload.write(message.toString(), offset, message.length, 'binary');
-
-        offset += message.length;
-
-        logmetConnection.sequence += 1;
-        return payload;
+    logmetConnection.sequence += 1;
+    return payload;
 };
 
 function logMessage(log, options) {
@@ -106,34 +108,38 @@ function logMessage(log, options) {
     log_entry.set('type', log.categoryName);
     log_entry.set('message', logData);
     var currentTime = Math.floor(Date.now() / 1000);
+    log_entry.set('from', 'logmet-appender');
     log_entry.set('timestamp', currentTime);
     log_entry.set('ALCH_TENANT_ID', options.space_id);
-
+    // console.log(getDateTimestamp() + ' logEntry: ' + JSON.stringify(log_entry, null, 2));
     var logBuffer = _formatToLogBuffer(log_entry);
-
-    var logWhitelist = process.env.log4js_syslog_appender_whitelist;
-    var categoriesToSend = logWhitelist && logWhitelist.split(',');
-
-    if (logWhitelist && categoriesToSend.indexOf(log.categoryName) === -1) return;
-
+    // console.log(getDateTimestamp() + ' logBuffer: ' + JSON.stringify(logBuffer));
     var formattedMessage = formatMessage(logBuffer);
-
+    // console.log(getDateTimestamp() + ' formattedMessage: ' + formattedMessage);
     if (isOpen()) {
             logmetConnection.connection.pause();
             logmetConnection.connection.write(formattedMessage, 'binary', function onSendMessagesWriteCallback() {
-                    console.log('Messages sent to Logmet...' + formattedMessage);
+                
+                // debug mode
+                if (process.env.log4js_logmet_debug === 'true' || process.env.log4js_logmet_info === 'true') {
+                    console.log(getDateTimestamp() + ' Messages sent to Logmet...' + formattedMessage.toString('binary'));
+                }
 
-                    logmetConnection.connection.once('data', function handleSendMessagesReply(reply) {
-
-                        console.log('Received data from Logmet [' + reply + ']');
+                logmetConnection.connection.once('data', function handleSendMessagesReply(reply) {
+                        if (process.env.log4js_logmet_debug === 'true' || process.env.log4js_logmet_info === 'true') {
+                            console.log(getDateTimestamp() + ' Received data from Logmet [' + reply + ']');
+                        }
 
                         if (reply.slice(0, logmetConnection.SUCCESS.length) === (logmetConnection.SUCCESS)) {
-                            var replyBuffer = new Buffer(reply);
-                            console.log('Logmet received '
-                                + replyBuffer.readUInt32BE(logmetConnection.SUCCESS.length, 6) + ' messages.');
-                            console.log('message sent');
-                            } else {
-                                console.error('Logmet rejected messages - failed to send messages.');
+                            if (process.env.log4js_logmet_debug === 'true' || process.env.log4js_logmet_info === 'true') {
+
+                                var replyBuffer = new Buffer(reply);
+                                console.log(getDateTimestamp() + ' Logmet received '
+                                    + replyBuffer.readUInt32BE(logmetConnection.SUCCESS.length, 6) + ' messages.');
+                            } 
+                            
+                        } else {
+                                    console.error('Logmet rejected messages - failed to send messages.');
                         }
                     });
             });
@@ -147,29 +153,73 @@ function _formatToLogBuffer(log_data) {
         + log_data.size * 8;     //  2 unsigned ints for each key and value pair (their size)
 
     const log_message = new Buffer(buffer_size);
+
     let offset = 0;
 
     //  Write the number of pairs
     log_message.writeUInt32BE(log_data.size, offset);
+
+    // debug mode
+    if (process.env.log4js_logmet_debug === 'true') {
+        console.log(getDateTimestamp() + ' char codes:' );
+        for (var i=0; i<4; i++) {
+            console.log(getDateTimestamp() + i  + ': ' + log_message.toString('binary').charCodeAt(i));
+        }
+        console.log(getDateTimestamp() + ' pairs: ' + log_data.size);
+    }
+    
     offset += 4;    //  skip 4 bytes for the UInt32
 
     log_data.forEach(function processKeyValuePair(value, key) {
         //key = _.toString(key).toLowerCase();
         key = _.toString(key);
         value = _.toString(value);
-
         log_message.writeUInt32BE(key.length, offset);
         offset += 4;
 
-        log_message.write(key, offset, key.length, 'binary');
+        log_message.write(key, offset, key.length, 'utf8');
         offset += key.length;
 
         log_message.writeUInt32BE(value.length, offset);
+
+        // debug mode
+        if (process.env.log4js_logmet_debug === 'true') {
+            console.log(getDateTimestamp() + ' key.length: ' + key.length);
+            console.log(getDateTimestamp() + ' value.length: ' + value.length);
+            for (var i=offset; i<offset+4; i++) {
+                console.log(getDateTimestamp() + i  + ': ' + log_message.toString('binary').charCodeAt(i));
+            }
+            console.log(getDateTimestamp() + ' after value length: ' + (log_message.toString('binary')));
+        }
+
         offset += 4;
 
-        log_message.write(value, offset, value.length, 'binary');
+        log_message.write(value, offset, value.length, 'utf8');
+
+        // debug mode
+        if (process.env.log4js_logmet_debug === 'true') {
+            console.log(getDateTimestamp() + ' after value: ' + value);
+            var currentStr = log_message.toString('binary');
+            for (var i=offset; i<offset+value.length; i++) {
+                console.log(getDateTimestamp() + i  + ': ' + currentStr.charCodeAt(i) + ' str char: ' + currentStr.charAt(i));
+            }
+        }
+
+        
         offset += value.length;
+
+        // debug mode
+        if (process.env.log4js_logmet_debug === 'true') {
+            console.log(getDateTimestamp() + ' key: ' + key + ' value: ' + value);
+            console.log(getDateTimestamp() + ' key length: ' + key.length + ' value length: ' + value.length);
+        }
+        
     });
+
+    // debug mode
+    if (process.env.log4js_logmet_debug === 'true') {
+        console.log(getDateTimestamp() + ' buffer_size: ' + buffer_size);
+    }
 
     return log_message;
 }
@@ -201,7 +251,7 @@ var _identify = function(on_identify_callback) {
         const identification_message = new Buffer(IDENTIFIER_PREFIX.length + 1 + identifier.length);
 
         let offset = 0;
-        identification_message.write(IDENTIFIER_PREFIX, offset, IDENTIFIER_PREFIX.length, 'binary');
+        identification_message.write(IDENTIFIER_PREFIX, offset, IDENTIFIER_PREFIX.length, 'utf8');
         offset += IDENTIFIER_PREFIX.length;
 
         identification_message.writeUInt8(identifier.length, offset);
@@ -210,6 +260,11 @@ var _identify = function(on_identify_callback) {
         identification_message.write(identifier, offset, identifier.length, 'binary');
 
         logmetConnection.connection.write(identification_message, 'binary');
+
+        // debug mode
+        if (process.env.log4js_logmet_debug === 'true' || process.env.log4js_logmet_info === 'true') {
+            console.log(getDateTimestamp() + ' Identified to logmet with message: ' + identification_message.toString('binary'));
+        }
 
         on_identify_callback(null);
     } else {
@@ -233,28 +288,32 @@ var _authenticate = function(options, on_authenticate_callback) {
 
         let offset = 0;
 
-        authentication_message.write(tenant_type, offset, tenant_type.length, 'binary');
+        authentication_message.write(tenant_type, offset, tenant_type.length, 'utf8');
         offset += tenant_type.length;
 
         authentication_message.writeUInt8(tenant_id.length, offset);
         offset += 1;
 
         authentication_message.write(tenant_id, offset,
-            tenant_id.length, 'binary');
+            tenant_id.length, 'utf8');
         offset += tenant_id.length;
 
         authentication_message.writeUInt8(tenant_password.length, offset);
         offset += 1;
 
         authentication_message.write(tenant_password, offset,
-            tenant_password.length, 'binary');
+            tenant_password.length, 'utf8');
 
         logmetConnection.connection.write(authentication_message, 'binary', function onAuthenticationWriteCallback() {
             logmetConnection.connection.once('data', function handleAuthenticationReply(reply) {
                     if (reply.slice(0, 2) === logmetConnection.SUCCESS) {
                         logmetConnection.sequence = 1;
+                        console.log(getDateTimestamp() + ' Authenticated...', reply);
 
-                        console.log('Authenticated...', reply);
+                        // debug mode
+                        if (process.env.log4js_logmet_debug === 'true' || process.env.log4js_logmet_info === 'true') {
+                            console.log(getDateTimestamp() + ' Authenticated with message: ' + authentication_message.toString('binary'));
+                        }
 
                         on_authenticate_callback();
                     } else {
@@ -273,11 +332,21 @@ var _authenticate = function(options, on_authenticate_callback) {
     }
 };
 
+function getDateTimestamp() {    var date = new Date();
+    var dateString = '[' + date.getFullYear() + '-' + formatToTwoDigits(date.getMonth()) + '-' + 
+      formatToTwoDigits(date.getDate()) + ' ' + formatToTwoDigits(date.getHours()) + ':' + 
+      formatToTwoDigits(date.getMinutes()) + ':' + formatToTwoDigits(date.getSeconds()) + 
+      '.' + date.getMilliseconds() + ']';
+    return dateString;
+};
 
+function formatToTwoDigits(num) {
+    return ('0' + num).slice(-2);
+};
 
 
 function configure(config) {
-	if (process.env.log4js_logmet_enabled !== 'true') return function() {};
+    if (process.env.log4js_logmet_enabled !== 'true') return function() {};
 
     const options = {
         component: process.env.log4js_logmet_component || config.options && config.options.component,
