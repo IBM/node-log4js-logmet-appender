@@ -13,6 +13,11 @@ Logmet appender for node-log4js
     export log4js_logmet_logging_port=9091
 ```
 
+ * You may also optionally set one of the following env vars for info and debug level logging:
+```
+ export log4js_logmet_info=true
+ export log4js_logmet_debug=true
+```
  * To get the secure token and space id see the instructions here: https://pages.github.ibm.com/alchemy-logmet/getting-started/authentication.html
  * Any Node apps using this library must have checked in an `.npmrc` file configured
  with the private IBM npm registry as follows:
