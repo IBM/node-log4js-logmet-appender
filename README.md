@@ -48,4 +48,4 @@ somewhere in your code.
   * You may optionally override the level above by setting the environment variable `log4js_logmet_level`
 
 ## Outstanding Issues
- * https://github.ibm.com/Alchemy-Key-Protect/logmet-client/issues/16
+ * The current outstanding issue is sometimes replies are not sent by the Logmet server in YS1. Investigation is ongoing.
