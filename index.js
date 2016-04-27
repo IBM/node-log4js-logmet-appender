@@ -41,9 +41,6 @@ function appender(level, options, tlsOpts) {
         else {
             logMessage(log, options);
         }
-       
-
-
     };
 };
 
@@ -54,9 +51,14 @@ function connected(message, options) {
             logmetConnection.connection = null;
         }
         else {
-            _authenticate(options, function() {
+            _authenticate(options, function(err) {
                 logmetConnection.connecting = false;
-                logMessage(message, options);
+                if (err) {
+                    logmetConnection.connection = null;
+                    return;
+                } else {
+                     logMessage(message, options);
+                }
             });
             
         }
