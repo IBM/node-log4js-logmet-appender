@@ -104,6 +104,7 @@ function formatMessage(message) {
 };
 
 function logMessage(log, options) {
+
     if (!logmetConnection.connection || logmetConnection.connecting == true) {
         return setTimeout(logMessage.bind(this, log, options), 100);
     }
@@ -111,6 +112,22 @@ function logMessage(log, options) {
 
     // temp padding workaround to https://jazzop27.rtp.raleigh.ibm.com:9443/ccm/web/projects/Alchemy#action=com.ibm.team.workitem.viewWorkItem&id=140410
     logData += logData.length >= 128 && logData.length <= 255 ? spacePadding.substring(logData.length - 1) : ''
+
+    var networkInterfaces = require('os').networkInterfaces();
+
+    var networkInterfacesString = '';
+    for (var networkInterface of Object.keys(networkInterfaces)) {
+        for (var specificNetworkInterface of networkInterfaces[networkInterface]) {
+            // only record external ipv4 ips.
+            if (specificNetworkInterface.family === 'IPv4' &&
+              specificNetworkInterface.internal === false) {
+                networkInterfacesString += networkInterfacesString !== '' ? ', ': '';
+                networkInterfacesString += networkInterface + ': '  + specificNetworkInterface.address;
+            }
+        }
+    }
+
+    networkInterfacesString += networkInterfacesString.length >= 128 && networkInterfacesString.length <= 255 ? spacePadding.substring(networkInterfacesString.length - 1) : ''
 
     const log_entry = new Map();
     log_entry.set('component', options.component);
@@ -120,6 +137,7 @@ function logMessage(log, options) {
     log_entry.set('from', 'logmet-appender');
     log_entry.set('timestamp', currentTime);
     log_entry.set('ALCH_TENANT_ID', options.space_id);
+    log_entry.set('host_ip', networkInterfacesString);
     // console.log(getDateTimestamp() + ' logEntry: ' + JSON.stringify(log_entry, null, 2));
     var logBuffer = _formatToLogBuffer(log_entry);
     // console.log(getDateTimestamp() + ' logBuffer: ' + JSON.stringify(logBuffer));
