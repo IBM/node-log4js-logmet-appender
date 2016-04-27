@@ -148,12 +148,12 @@ function logMessage(log, options) {
             logmetConnection.connection.write(formattedMessage, 'binary', function onSendMessagesWriteCallback() {
                 
                 // debug mode
-                if (process.env.log4js_logmet_debug === 'true' || process.env.log4js_logmet_info === 'true') {
+                if (process.env.log4js_logmet_debug === 'true') {
                     console.log(getDateTimestamp() + ' Messages sent to Logmet...' + formattedMessage.toString('binary'));
                 }
 
                 logmetConnection.connection.once('data', function handleSendMessagesReply(reply) {
-                        if (process.env.log4js_logmet_debug === 'true' || process.env.log4js_logmet_info === 'true') {
+                        if (process.env.log4js_logmet_debug === 'true') {
                             console.log(getDateTimestamp() + ' Received data from Logmet [' + reply + ']');
                         }
 
@@ -164,9 +164,8 @@ function logMessage(log, options) {
                                 console.log(getDateTimestamp() + ' Logmet received '
                                     + replyBuffer.readUInt32BE(logmetConnection.SUCCESS.length, 6) + ' messages.');
                             } 
-                            
                         } else {
-                                    console.error('Logmet rejected messages - failed to send messages.');
+                            console.error('Logmet rejected messages - failed to send messages.');
                         }
                     });
             });
@@ -290,7 +289,9 @@ var _identify = function(on_identify_callback) {
 
         // debug mode
         if (process.env.log4js_logmet_debug === 'true' || process.env.log4js_logmet_info === 'true') {
-            console.log(getDateTimestamp() + ' Identified to logmet with message: ' + identification_message.toString('binary'));
+            if (identification_message.length > 3) {
+                console.log(getDateTimestamp() + ' Identified to logmet with message: ' + identification_message.toString('binary', 0, 2) + '<specialchars>' + identification_message.toString('binary', 3));
+            }
         }
 
         on_identify_callback(null);
@@ -335,10 +336,12 @@ var _authenticate = function(options, on_authenticate_callback) {
             logmetConnection.connection.once('data', function handleAuthenticationReply(reply) {
                     if (reply.slice(0, 2) === logmetConnection.SUCCESS) {
                         logmetConnection.sequence = 1;
-                        console.log(getDateTimestamp() + ' Authenticated...', reply);
+                        if (process.env.log4js_logmet_info === 'true') {
+                            console.log(getDateTimestamp() + ' Authenticated...', reply);
+                        }
 
                         // debug mode
-                        if (process.env.log4js_logmet_debug === 'true' || process.env.log4js_logmet_info === 'true') {
+                        if (process.env.log4js_logmet_debug === 'true') {
                             console.log(getDateTimestamp() + ' Authenticated with message: ' + authentication_message.toString('binary'));
                         }
 
