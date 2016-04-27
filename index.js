@@ -14,6 +14,8 @@ var log4js = require('log4js'),
     tls = require('tls'),
     _ = require('lodash');
 
+var spacePadding = Array(256).join(' ');
+
 module.exports = {
     appender: appender,
     configure: configure
@@ -106,6 +108,10 @@ function logMessage(log, options) {
         return setTimeout(logMessage.bind(this, log, options), 100);
     }
     var logData = log.data.join(' | ');
+
+    // temp padding workaround to https://jazzop27.rtp.raleigh.ibm.com:9443/ccm/web/projects/Alchemy#action=com.ibm.team.workitem.viewWorkItem&id=140410
+    logData += logData.length >= 128 && logData.length <= 255 ? spacePadding.substring(logData.length - 1) : ''
+
     const log_entry = new Map();
     log_entry.set('component', options.component);
     log_entry.set('type', log.categoryName);
