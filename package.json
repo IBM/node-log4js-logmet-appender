@@ -14,6 +14,7 @@
   "license": "IBM",
   "dependencies": {
     "lodash": "^4.11.1",
-    "log4js": "^0.6.35"
+    "log4js": "^0.6.35",
+    "logmet-client": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v0.0.2"
   }
 }
