@@ -42,7 +42,7 @@ function retryLogic(retryFunction, tries) {
 
         logmetConnection.droppedMessages++;
         logmetConnection.circuitBreak = true;
-        setTimeout(connectCircuit.bind(logmetConnection.circuitBreak), 60 * 60);
+        setTimeout(connectCircuit.bind(logmetConnection.circuitBreak), 60 * 60 * 1000);
         return;
     }
     setTimeout(retryFunction.bind(this, tries), 100);
