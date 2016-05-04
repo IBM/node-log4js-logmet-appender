@@ -47,5 +47,5 @@ somewhere in your code.
   * You may substitute `INFO` with your own level above (for ex: `WARN`, `ERROR`, etc)
   * You may optionally override the level above by setting the environment variable `log4js_logmet_level`
 
-## Outstanding Issues
- * The current outstanding issue is sometimes replies are not sent by the Logmet server in YS1. Investigation is ongoing.
+## Pending work
+ * No automated tests currently
