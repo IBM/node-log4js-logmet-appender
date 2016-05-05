@@ -23,12 +23,23 @@ Logmet appender for node-log4js
  with the private IBM npm registry as follows:
 
  ```
-   @alchemy-kms:registry=http://173.192.225.82:8080
-   @alchemy-kms:always-auth=true
-   //173.192.225.82:8080/:_authToken=${IBM_REGISTRY_NPM_TOKEN}
+   @logmet-clients:registry=${IBM_NPM_REGISTRY}
+   @logmet-clients:always-auth=true
+   //173.192.225.82:8080/:_authToken=${IBM_NPM_REGISTRY_TOKEN}
  ```
- 
+
   * Instructions on how to get a `IBM_REGISTRY_NPM_TOKEN` token above are [here](https://github.ibm.com/fed/npm#setting-up-for-private-npm-modules)
+
+   * After you run the `npm login` command described in the link above, this will create a `.npmrc` file in your home directory. Next do:
+     * `cat ~/.npmrc`
+     * Now set the following two environment variables on your system & delivery pipeline:
+
+```
+IBM_NPM_REGISTRY: http://173.192.225.82:8080
+IBM_NPM_REGISTRY_TOKEN: <token from `cat ~/.npmrc`>
+```
+
+You should now be set for running `npm install` in this repo.
 
 ## Usage
  * You must be using [log4js-node](https://github.com/nomiddlename/log4js-node) and must call `log4js.configure('/path/to/log4js.json')`
@@ -43,7 +54,7 @@ somewhere in your code.
             }
 }
  ```
- 
+
   * You may substitute `INFO` with your own level above (for ex: `WARN`, `ERROR`, etc)
   * You may optionally override the level above by setting the environment variable `log4js_logmet_level`
 
