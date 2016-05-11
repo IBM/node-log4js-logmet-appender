@@ -1,6 +1,21 @@
 # node-log4js-logmet-appender
 Logmet appender for node-log4js
 
+
+## Installation / upgrade
+* Installation: 
+```
+npm install git+https://github.ibm.com/org-ids/node-log4js-logmet-appender#<LatestTag> --save
+```
+ * If you use shrinkwrap then `npm shrinkwrap` after.
+* Upgrade: 
+
+```
+npm uninstall @org-ids/log4js-logmet-appender --save
+npm install git+https://github.ibm.com/org-ids/node-log4js-logmet-appender#<LatestTag> --save
+```
+  * If you use shrinkwrap then `npm shrinkwrap` after.
+
 ## Configuring
  * Set the following environment variables:
 
