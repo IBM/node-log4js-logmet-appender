@@ -4,7 +4,7 @@
   "description": "Logmet appender for node-log4js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node node_modules/eslint/bin/eslint ."
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,8 @@
   "dependencies": {
     "@logmet-clients/logmet-client": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v.0.0.4",
     "log4js": "^0.6.35"
+  },
+  "devDependencies": {
+    "eslint": "^2.10.2"
   }
 }
