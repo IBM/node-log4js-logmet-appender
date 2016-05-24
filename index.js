@@ -34,7 +34,8 @@ function retryLogic(retryFunction, tries) {
     }
 
     if (tries > logmetConnection.MAX_TRIES) {
-        util.log('Logmet Appender: Tried sending a message 10 times but ' + 
+        util.log('Logmet Appender: Tried sending a message ' + 
+            logmetConnection.MAX_TRIES + ' times but ' + 
             'the client was not connected. Initiating circuit breaker protocol. ' + 
             'For the ' + logmetConnection.CIRCUIT_BREAK_MINS + ' mins, ' +
             'we will not attempt to send any messages to Logmet.');
@@ -43,7 +44,7 @@ function retryLogic(retryFunction, tries) {
 
         logmetConnection.droppedMessages++;
         logmetConnection.circuitBreak = true;
-        setTimeout(connectCircuit.bind(logmetConnection.circuitBreak), logmetConnection.CIRCUIT_BREAK_MINS * 60 * 1000);
+        setTimeout(connectCircuit.bind(this), logmetConnection.CIRCUIT_BREAK_MINS * 60 * 1000);
         return;
     }
     setTimeout(retryFunction.bind(this, tries), 100);
