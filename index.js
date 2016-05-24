@@ -33,7 +33,7 @@ function retryLogic(retryFunction, tries) {
         tries++;
     }
 
-    if (tries >= 10) {
+    if (tries > logmetConnection.MAX_TRIES) {
         util.log('Logmet Appender: Tried sending a message 10 times but ' + 
             'the client was not connected. Initiating circuit breaker protocol. ' + 
             'For the next hour, we will not attempt to send any messages to Logmet.');
