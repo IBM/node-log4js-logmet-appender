@@ -4,8 +4,8 @@
   "dependencies": {
     "@logmet-clients/logmet-client": {
       "version": "0.0.5",
-      "from": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v.0.0.5",
-      "resolved": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#347cb33cf32d15c6fac18497dd5c8a18cb9f887f"
+      "from": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v0.0.6",
+      "resolved": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#c9dea1cd270ebe37827d7e7838a64b2605b80657"
     },
     "acorn": {
       "version": "3.2.0",
