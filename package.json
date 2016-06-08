@@ -13,8 +13,8 @@
   "author": "Herman Singh Badwal <hermanba@ca.ibm.com>",
   "license": "IBM",
   "dependencies": {
-    "@logmet-clients/logmet-client": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v.0.0.5",
-    "log4js": "^0.6.35"
+    "log4js": "^0.6.35",
+    "@logmet-clients/logmet-client": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v.0.0.5"
   },
   "devDependencies": {
     "eslint": "^2.10.2"
