@@ -37,17 +37,17 @@ function retryLogic(retryFunction, tries) {
         util.log('Logmet Appender: Tried sending a message ' + 
             logmetConnection.MAX_TRIES + ' times but ' + 
             'the client was not connected. Initiating circuit breaker protocol. ' + 
-            'For the next ' + logmetConnection.CIRCUIT_BREAK_MINS + ' mins, ' +
+            'For the next ' + logmetConnection.CIRCUIT_BREAK_SECS + ' secs, ' +
             'we will not attempt to send any messages to Logmet.');
         // circuit breaker logic - if detected bad connection, stop trying
-        // to send log messages to logmet for logmetConnection.CIRCUIT_BREAK_MINS mins.
+        // to send log messages to logmet for logmetConnection.CIRCUIT_BREAK_SECS mins.
 
         logmetConnection.droppedMessages++;
         logmetConnection.circuitBreak = true;
-        setTimeout(connectCircuit.bind(this), logmetConnection.CIRCUIT_BREAK_MINS * 60 * 1000);
+        setTimeout(connectCircuit.bind(this), logmetConnection.CIRCUIT_BREAK_SECS * 1000);
         return;
     }
-    setTimeout(retryFunction.bind(this, tries), 500);
+    setTimeout(retryFunction.bind(this, tries), 3000);
     return;
 }
 
@@ -127,7 +127,7 @@ function logMessage(level, options, tlsOpts, log, tries) {
 
     if (!logmetConnection.connected && !logmetConnection.connecting) {
         logmetConnection.connecting = true;
-        var logmetProducer = new logmet.LogmetProducer(tlsOpts.host, tlsOpts.port, options.space_id, options.logging_token, false, {bufferSize: 1000});
+        var logmetProducer = new logmet.LogmetProducer(tlsOpts.host, tlsOpts.port, options.space_id, options.logging_token, false, {bufferSize: logmetConnection.BUFFER_SIZE});
 
         logmetProducer.connect(function(error, status) {
             logmetConnection.connecting = false;
