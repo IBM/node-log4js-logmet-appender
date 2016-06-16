@@ -18,64 +18,18 @@ module.exports = {
     configure: configure
 };
 
-function connectCircuit() {
-    util.log('Logmet Appender: Re-connecting the circuit. So far we have dropped ' + 
-        logmetConnection.droppedMessages + ' messages.');
-    logmetConnection.circuitBreak = false;
-}
-
-function retryLogic(retryFunction, tries) {
-    // initialize (or increment if already initialized) tries
-    if (!tries) {
-        tries = 1;
-    }
-    else {
-        tries++;
-    }
-
-    if (tries > logmetConnection.MAX_TRIES) {
-        util.log('Logmet Appender: Tried sending a message ' + 
-            logmetConnection.MAX_TRIES + ' times but ' + 
-            'the client was not connected. Initiating circuit breaker protocol. ' + 
-            'For the next ' + logmetConnection.CIRCUIT_BREAK_SECS + ' secs, ' +
-            'we will not attempt to send any messages to Logmet.');
-        // circuit breaker logic - if detected bad connection, stop trying
-        // to send log messages to logmet for logmetConnection.CIRCUIT_BREAK_SECS mins.
-
-        logmetConnection.droppedMessages++;
-        logmetConnection.circuitBreak = true;
-        setTimeout(connectCircuit.bind(this), logmetConnection.CIRCUIT_BREAK_SECS * 1000);
-        return;
-    }
-    setTimeout(retryFunction.bind(this, tries), 3000);
-    return;
-}
-
-function sendData(event, type, spaceId, tries) {
-
-    // we are in circuit break mode. There is something wrong with the logmet connection. We won't try to
-    // send any log messages to logmet until the circuit is connected again.
-    if (logmetConnection.circuitBreak) {
-        logmetConnection.droppedMessages++;
-        return;
-    }
-
-    if (logmetConnection.connecting || !logmetConnection.connected) {
-        retryLogic(sendData.bind(this, event, type, spaceId), tries);
-    }
-    else {
-        logmetConnection.producer.sendData(event, type, spaceId, function(error, status) {
-            if (error) {
-                if (!status.isDataAccepted) {
-                    util.log('Logmet Appender: Logmet client rejected the data. Retrying. ERROR: ' + error);
-                }
-                else {
-                    util.log('Logmet Appender: Unknown error: ' + JSON.stringify(error));
-                }
-                retryLogic(sendData.bind(this, event, type, spaceId), tries);
+function sendData(level, options, tlsOpts, log) {
+    var event = buildEvent(log, options);
+    logmetConnection.producer.sendData(event, log.categoryName, options.space_id, function(error, status) {
+        if (error) {
+            util.log('Logmet Appender: Logmet client rejected the data, dropping message. ERROR: ' + error);
+        }
+        else {
+            if (!status.connectionActive) {
+                util.log('Logmet Appender: Logmet client not connected to Logmet, placing message in data buffer.')
             }
-        });
-    }
+        }
+    });
 }
 
 function getNetworkInterfacesString() {
@@ -115,43 +69,16 @@ function buildEvent(log, options) {
     return event;
 }
 
-function logMessage(level, options, tlsOpts, log, tries) {
-    // we are in circuit break mode. There is something wrong with the logmet connection. We won't try to
-    // send any log messages to logmet until the circuit is connected again.
-    if (logmetConnection.circuitBreak) {
-        logmetConnection.droppedMessages++;
-        return;
-    }
-
-    var event = buildEvent(log, options);
-
-    if (!logmetConnection.connected && !logmetConnection.connecting) {
-        logmetConnection.connecting = true;
-        var logmetProducer = new logmet.LogmetProducer(tlsOpts.host, tlsOpts.port, options.space_id, options.logging_token, false, {bufferSize: logmetConnection.BUFFER_SIZE});
-
-        logmetProducer.connect(function(error, status) {
-            logmetConnection.connecting = false;
-            if (error) {
-              util.log('Logmet Appender: Connection with Logmet failed. ERROR: ' + error);
-              retryLogic(logMessage.bind(this, level, options, tlsOpts, log), tries);
-            } else if (status.handshakeCompleted) {
-                util.log('Logmet Appender: LogmetClient is ready to send data.'); 
-                // we are now connected.
-                logmetConnection.producer = logmetProducer;
-                logmetConnection.connected = true;
-
-                sendData(event, log.categoryName, options.space_id);
-            }
-        });
-        
-    }
-    else {
-        sendData(event, log.categoryName, options.space_id);
-    }
-};
-
 function appender(level, options, tlsOpts) {
-    return logMessage.bind(this, level, options, tlsOpts);
+    logmetConnection.producer = new logmet.LogmetProducer(tlsOpts.host, tlsOpts.port, options.space_id, options.logging_token, false, {bufferSize: logmetConnection.BUFFER_SIZE});
+    logmetConnection.producer.connect(function(error, status) {
+        if (error) {
+          util.log('Logmet Appender: Connection with Logmet failed. ERROR: ' + error);
+        } else if (status.handshakeCompleted) {
+            util.log('Logmet Appender: LogmetClient is ready to send data.'); 
+        }
+    });
+    return sendData.bind(this, level, options, tlsOpts);
 };
 
 function configure(config) {
