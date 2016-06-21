@@ -21,49 +21,21 @@ module.exports = {
 function sendData(level, options, tlsOpts, log) {
     var event = buildEvent(log, options);
     logmetConnection.producer.sendData(event, log.categoryName, options.space_id, function(error, status) {
-        if (error) {
-            util.log('Logmet Appender: Logmet client rejected the data, dropping message. ERROR: ' + error);
-        }
-        else {
-            if (!status.connectionActive) {
-                util.log('Logmet Appender: Logmet client not connected to Logmet, placing message in data buffer.')
-            }
-        }
+        // dropping message, error already logged by the logmet client
     });
 }
 
-function getNetworkInterfacesString() {
-    var networkInterfaces = require('os').networkInterfaces();
-
-    var networkInterfacesString = '';
-    for (var networkInterface of Object.keys(networkInterfaces)) {
-        for (var specificNetworkInterface of networkInterfaces[networkInterface]) {
-            // only record external ipv4 ips.
-            if (specificNetworkInterface.family === 'IPv4' &&
-              specificNetworkInterface.internal === false) {
-                networkInterfacesString += networkInterfacesString !== '' ? ', ': '';
-                networkInterfacesString += networkInterface + ': '  + specificNetworkInterface.address;
-            }
-        }
-    }
-
-    return networkInterfacesString;
-};
-
-
 function buildEvent(log, options) {
     // build up message to send
-    var logData = log.data.join(' | ');
-    var networkInterfacesString = getNetworkInterfacesString();
-
-    var currentTime = Math.floor(Date.now() / 1000);
+    var logData = log.data && log.data.join(' | ');
 
     var event = {
-        message: logData,
-        component: options.component,
-        from: 'logmet-appender',
-        timestamp: currentTime,
-        host_ip: networkInterfacesString
+        'component': options.component,
+        'host-ip': process.env.CF_INSTANCE_IP,
+        'instance-id': process.env.CF_INSTANCE_INDEX,
+        'loglevel': log.level && log.level.levelStr,
+        'logtime': log.startTime && log.startTime.toISOString(),
+        'message': logData
     };
 
     return event;
