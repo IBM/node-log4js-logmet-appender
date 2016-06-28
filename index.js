@@ -21,7 +21,7 @@ module.exports = {
 function sendData(level, options, tlsOpts, log) {
     var event = buildEvent(log, options);
     logmetConnection.producer.sendData(event, log.categoryName, options.space_id, function(error, status) {
-        // dropping message, error already logged by the logmet client
+        // message is dropped if an error is returned, errors already logged by logmet client
     });
 }
 
