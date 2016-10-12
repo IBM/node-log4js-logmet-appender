@@ -1,11 +1,11 @@
 {
   "name": "@org-ids/log4js-logmet-appender",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "dependencies": {
     "@logmet-clients/logmet-client": {
-      "version": "0.0.9",
-      "from": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v0.0.9",
-      "resolved": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#553355de1cf7d475345f66151f82c167a1b1152e"
+      "version": "0.0.10",
+      "from": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v0.0.10",
+      "resolved": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#0b8666839067158f5c68ecdee512e870e9470527"
     },
     "acorn": {
       "version": "3.2.0",
