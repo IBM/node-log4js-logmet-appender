@@ -1,6 +1,6 @@
 {
   "name": "@org-ids/log4js-logmet-appender",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Logmet appender for node-log4js",
   "main": "index.js",
   "scripts": {
