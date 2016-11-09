@@ -15,7 +15,8 @@ var log4js = require('log4js'),
 
 module.exports = {
     appender: appender,
-    configure: configure
+    configure: configure,
+    shutdown: shutdown
 };
 
 function sendData(level, options, tlsOpts, log) {
@@ -90,4 +91,8 @@ function configure(config) {
     util.log('Logmet Appender configured');
     return appender(level, options, tlsOpts);
 };
+
+function shutdown() {
+    logmetConnection.producer.terminate();
+}
 
