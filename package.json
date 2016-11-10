@@ -1,6 +1,6 @@
 {
   "name": "@org-ids/log4js-logmet-appender",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Logmet appender for node-log4js",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "author": "Herman Singh Badwal <hermanba@ca.ibm.com>",
   "license": "IBM",
   "dependencies": {
-    "@logmet-clients/logmet-client": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v0.0.10",
+    "@logmet-clients/logmet-client": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v0.1.0",
     "log4js": "^0.6.35"
   },
   "devDependencies": {

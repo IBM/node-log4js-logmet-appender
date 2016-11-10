@@ -92,7 +92,12 @@ function configure(config) {
     return appender(level, options, tlsOpts);
 };
 
-function shutdown() {
-    logmetConnection.producer.terminate();
+function shutdown(callback) {
+    if (logmetConnection.producer) {
+        logmetConnection.producer.terminate(callback);
+    }
+    else {
+        callback();
+    }
 }
 
