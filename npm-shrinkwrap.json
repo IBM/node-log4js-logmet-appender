@@ -1,12 +1,7 @@
 {
   "name": "@org-ids/log4js-logmet-appender",
-  "version": "0.1.15",
+  "version": "0.2.0",
   "dependencies": {
-    "@logmet-clients/logmet-client": {
-      "version": "0.1.0",
-      "from": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#v0.1.0",
-      "resolved": "git+https://github.ibm.com/LogmetClients/logmet-client-njs#0738f20607319df173e7761c0c050e1ccf448fdc"
-    },
     "acorn": {
       "version": "3.2.0",
       "from": "acorn@>=3.1.0 <4.0.0",
@@ -444,6 +439,10 @@
         }
       }
     },
+    "logmet-client": {
+      "version": "0.1.1",
+      "from": "logmet-client@0.1.1"
+    },
     "minimatch": {
       "version": "3.0.0",
       "from": "minimatch@>=2.0.0 <3.0.0||>=3.0.0 <4.0.0",
@@ -460,9 +459,9 @@
       "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz"
     },
     "moment": {
-      "version": "2.15.1",
+      "version": "2.17.1",
       "from": "moment@>=2.10.6 <3.0.0",
-      "resolved": "https://registry.npmjs.org/moment/-/moment-2.15.1.tgz"
+      "resolved": "https://registry.npmjs.org/moment/-/moment-2.17.1.tgz"
     },
     "ms": {
       "version": "0.7.1",

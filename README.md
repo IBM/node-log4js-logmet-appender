@@ -11,7 +11,7 @@ npm install git+https://github.ibm.com/org-ids/node-log4js-logmet-appender#<Late
 * Upgrade:
 
 ```
-npm uninstall @org-ids/log4js-logmet-appender --save
+npm uninstall log4js-logmet-appender --save
 npm install git+https://github.ibm.com/org-ids/node-log4js-logmet-appender#<LatestTag> --save
 ```
   * If you use shrinkwrap then `npm shrinkwrap` after.
@@ -90,7 +90,7 @@ somewhere in your code.
 
  ```
  {
-            "type": "@org-ids/log4js-logmet-appender",
+            "type": "log4js-logmet-appender",
             "options": {
                 "level": "INFO"
             }

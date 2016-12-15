@@ -11,7 +11,7 @@
 var log4js = require('log4js'),
     util = require('util'),
     logmetConnection = require('./lib/logmet-connection-singleton'),
-    logmet = require('@logmet-clients/logmet-client');
+    logmet = require('logmet-client');
 
 module.exports = {
     appender: appender,
