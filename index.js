@@ -1,6 +1,6 @@
 /**
  * Licensed Materials - Property of IBM
- * (c) Copyright IBM Corporation 2016. All Rights Reserved.
+ * (c) Copyright IBM Corporation 2016, 2017. All Rights Reserved.
  *
  * Note to U.S. Government Users Restricted Rights:
  * Use, duplication or disclosure restricted by GSA ADP Schedule
@@ -21,7 +21,7 @@ module.exports = {
 
 function sendData(level, options, tlsOpts, log) {
     var event = buildEvent(log, options);
-    logmetConnection.producer.sendData(event, log.categoryName, options.space_id, function(error, status) {
+    logmetConnection.producer.sendData(event, log.categoryName, options.space_id, function(/*error, status*/) {
         // message is dropped if an error is returned, errors already logged by logmet client
     });
 }
@@ -46,13 +46,13 @@ function appender(level, options, tlsOpts) {
     logmetConnection.producer = new logmet.LogmetProducer(tlsOpts.host, tlsOpts.port, options.space_id, options.logging_token, false, {bufferSize: logmetConnection.BUFFER_SIZE});
     logmetConnection.producer.connect(function(error, status) {
         if (error) {
-          util.log('Logmet Appender: Connection with Logmet failed. ERROR: ' + error);
+            util.log('Logmet Appender: Connection with Logmet failed. ERROR: ' + error);
         } else if (status.handshakeCompleted) {
             util.log('Logmet Appender: LogmetClient is ready to send data.'); 
         }
     });
     return sendData.bind(this, level, options, tlsOpts);
-};
+}
 
 function configure(config) {
     if (process.env.log4js_logmet_enabled !== 'true') return function() {};
@@ -90,7 +90,7 @@ function configure(config) {
 
     util.log('Logmet Appender configured');
     return appender(level, options, tlsOpts);
-};
+}
 
 function shutdown(callback) {
     if (logmetConnection.producer) {

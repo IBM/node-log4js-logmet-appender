@@ -1,22 +1,12 @@
 {
     "rules": {
-	"no-use-before-define": [ 0 ],
-	"no-process-exit": [ 0 ],
-	"quotes": [ 0 ],
-	"no-unused-vars": [ 1 ],
-	"no-shadow": [ 0 ],
-	"curly": [ 0 ],
-	"no-underscore-dangle": [ 0 ],
-	"no-multi-spaces": [ 0 ],
-	"no-trailing-spaces": [ 0 ],
-	"no-mixed-spaces-and-tabs": [ 1 ],
-	"camelcase": [ 0 ],
-	"dot-notation": [ 0 ],
-	"no-mixed-requires": [ 0 ],
-	"no-undef": [ 2 ]
+        "semi": [2, "always"],
+        "indent": [2,4],
+        "linebreak-style": [2,"unix"]
     },
     "env": {
-        "node": true,
-        "es6": true
-    }
+        "es6": true,
+        "node": true
+    },
+    "extends": "eslint:recommended"
 }

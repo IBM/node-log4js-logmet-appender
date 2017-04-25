@@ -1,5 +1,5 @@
 language: node_js
 node_js:
-  - '4'
-before_install:
-  - echo -e "machine github.ibm.com\n  login $CI_USER_TOKEN" >> ~/.netrc
+    - '4'
+script:
+    - node_modules/.bin/eslint .

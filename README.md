@@ -1,9 +1,9 @@
-# node-log4js-logmet-appender
+# node-log4js-logmet-appender [![Build Status](https://travis-ci.org/IBM/node-log4js-logmet-appender.svg?branch=master)](https://travis-ci.org/IBM/node-log4js-logmet-appender)
 Logmet appender for node-log4js
 
 ## Installation
 ```
-npm install git+https://github.ibm.com/org-ids/node-log4js-logmet-appender#<LatestTag> --save
+npm i log4js-logmet-appender --save
 ```
 
 ## Configuration
@@ -37,3 +37,15 @@ You may substitute `INFO` with your own level above (for ex: `WARN`, `ERROR`, et
 
 ## Pending work
 No automated tests currently
+
+## License
+
+[The MIT License (MIT)](LICENSE.txt)
+
+## Contributing
+
+Contributions are welcome via Pull Requests. Please submit your very first Pull Request against the [Developer's Certificate of Origin](DCO.txt), adding a line like the following to the end of the file... using your name and email address of course!
+
+```
+Signed-off-by: John Doe <john.doe@example.org>
+```
