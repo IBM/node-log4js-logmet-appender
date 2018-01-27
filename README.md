@@ -26,86 +26,56 @@ You must add the following to the list of appenders in your `log4js.json` file:
 
 ```
 {
-  "type": "log4js-logmet-appender",
-  "options": {
-    "level": "INFO"
-  }
+  "type": "log4js-logmet-appender"
 }
  ```
- You may substitute `INFO` with your own level above (for ex: `WARN`, `ERROR`, etc). Please check [log4js](https://www.npmjs.com/package/log4js) documentation for level based filtering since there might be some differences between versions.  
 
-To use custom fields to send logmet, you should define `eventMap` object under `options`. If it is not defined then default mapping is used. 
+Using this configuration log messages to logmet will contain the following fields:
+- `component`: value of the environment variable `log4js_logmet_component`
+- `host-ip`: value of the environmental variable `CF_INSTANCE_IP`
+- `instance-id`: value of the environmental variable `CF_INSTANCE_INDEX`
+- `loglevel`: logging level (eg. `INFO`)
+- `logtime`: time message was logged in ISO string format (eg. `2011-10-05T14:48:00.000Z`)
+- `message`: log message/data, data array elements are concatenated with ` | ` delimeter
 
-Default Event object (object sending to Logmet) consists of `component`, `host-ip`, `instance-id`, `loglevel`, `logtime`, `message` values. 
+### Custom Fields
 
-For custom fields, values can be map are given below:
-- `component`: The name of your component / service. 
-- `host-ip`: The cloudfoundary ip defined as environmental variable CF_INSTANCE_IP
-- `instance-id`: The cloudfounrday index defined as environmental variable CF_INSTANCE_INDEX
-- `loglevel`: Logging level string. (exp. TRACE, DEBUG, INFO, WARN, ERROR, FATAL)
-- `logtime`: Logging time as ISO string format (exp. 2011-10-05T14:48:00.000Z)
-- `message`: Log message based on log4js configuration. If log data is multiple string, then is is merged with ` | ` delimiter. 
-- `process.*` : To reach variables from `process` within two layer. (exp. process.pid, process.env.USER)
-- `data.*` : To reach variables from optional `object` type from log data within two layer. This is useful, if you want to pass a custom object and use the value in your logs withing a custom field. (exp. You can pass `{clientId: '123'}` object to log and map it as `CLIENT_ID: data.clientId`)
+To use custom fields, you should define an `options.fields` object.
+Note: If a `fields` object is defined, none of the default fields will be sent.
 
-Example `log4js.json` file given below (for log4js version 0.6.38 and below).
+You can choose names for the log level (`"level_field_name"`), timestamp (`"timestamp_field_name"`) and data/message (`"data_field_name"`) fields. You may also add more custom static fields (under the `"static_fields"` object), fields that have node `process` object properties as values (under the `"process_fields"` object), and fields that have environment variables as values (under the `"env_fields"` object).
+
+Example with custom fields:
 ```
-{
-  "appenders": [
-    {
-      "type": "console",
-      "layout": { "type": "coloured" }
-    },
-    { 
-      "type": "logLevelFilter", 
-      "level": "INFO", 
-      "appender": {
-        "type": "log4js-logmet-appender",
-        "options": {
-          "eventMap": {
-            "TIMESTAMP": "logtime",
-            "PRIORITY": "loglevel",
-            "MESSAGE": "message",
-            "SERVICE": "component",
-            "_PID": "process.pid",
-            "USER": "process.env.USER",
-            "CUSTOM_ENV": "process.env.CUSTOM_VARIABLE"
-            "TEST": "data.test",
-            "TEST12": "data.test1.test2"
-          }
-        }
-     }
-   }
-  ],
-  "replaceConsole": true
+{ 
+  "type": "log4js-logmet-appender",
+  "options": {
+    "fields": {
+      "level_field_name": "PRIORITY",
+      "timestamp_field_name": "TIMESTAMP",
+      "data_field_name": "MESSAGE"
+
+      "static_fields": {
+        "COMPONENT": "otc-api"
+      },
+
+      "process_fields": {
+        "PROCESS_ID": "pid"
+      },
+
+      "env_fields": {
+        "INSTANCE_INDEX": "CF_INSTANCE_INDEX"
+      }
+    }
+  }
 }
 ```
-And example `debug` logging call;
-```
-var log4js = require('log4js');
-log4js.configure('/path/to/log4js.json');
-var logger = log4js.getLogger();
-logger.level = 'debug';
-const objectToTest = { test: 'test 1 is good', test1: { test2: 'test 2 is better' } };
-logger.debug("Some debug messages", objectToTest);
-```
-This example prints coloured console log and filters `INFO` levels for `log4js-logmet-appender` appender. 
-`eventMap` determines the custom mapping for the object sending logmet. Values will be replaced based on event mapping and will send to logmet. 
 
-Example data to be sent to logmet based on given `log4js.json`
-```
-{
-    "TIMESTAMP": "2011-10-05T14:48:00.000Z",
-    "PRIORITY": "INFO",
-    "MESSAGE": "Your log message",
-    "SERVICE": "name of your component",
-    "_PID": 1234,
-    "USER": "Username of the process",
-    "CUSTOM_ENV": "Environmental value defined as CUSTOM_VARIABLE",
-    "TEST": "test 1 is good",
-    "TEST12": "test 2 is better"
-}
-```
+You may also define custom dynamic fields by setting `options.fields` `"data_field_augment"` to `true` and passing a single object argument to the logger. Object keys will be mapped to field names.
+
+Example: `logger.info({ MESSAGE: "hello", FLAG: "urgent" });`
+
+Note: If `"data_field_augment"` is set to `true` and a single object argument is NOT passed to the logger, the log message/data will still be sent as a regular field if `"data_field_name"` is also set.
 
 ## Pending work
 No automated tests currently
