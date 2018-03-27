@@ -41,15 +41,18 @@ The appender supports custom layouts, the default layout function used is:
 
 ```
 let layout = (logEvent) => {
-    return {
-        'component': process.env.log4js_logmet_component || config.component,
+    let component = process.env.log4js_logmet_component || config.component;
+    let instanceId = process.env.CF_INSTANCE_INDEX || require('os').hostname().replace(new RegExp(`(-|\\.)?${ component }(-|\\.)?`, 'gi'), '');
+    let logmetEvent = {
+        'component': component,
         'host-ip': process.env.CF_INSTANCE_IP,
-        'instance-id': process.env.CF_INSTANCE_INDEX,
+        'instance-id': instanceId,
         'loglevel': logEvent.level.levelStr,
         'msg_timestamp': logEvent.startTime.toISOString(),
         'message': logEvent.data.join(' | '),
         'type': logEvent.categoryName
     };
+    return logmetEvent;
 };
 ```
 
