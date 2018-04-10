@@ -46,10 +46,9 @@ function configure(config, layouts) {
     }
 
     let layout = (logEvent) => {
-        let component = process.env.log4js_logmet_component || config.component;
-        let instanceId = process.env.CF_INSTANCE_INDEX || require('os').hostname().replace(new RegExp(`(-|\\.)?${ component }(-|\\.)?`, 'gi'), '');
+        let instanceId = process.env.CF_INSTANCE_INDEX || require('os').hostname().replace(/^.*-([a-zA-Z0-9]+-[a-zA-Z0-9]+)$/g,'$1');
         let logmetEvent = {
-            'component': component,
+            'component': process.env.log4js_logmet_component || config.component,
             'host-ip': process.env.CF_INSTANCE_IP,
             'instance-id': instanceId,
             'loglevel': logEvent.level.levelStr,
