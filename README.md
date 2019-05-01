@@ -19,7 +19,7 @@ export log4js_logmet_logging_port=9091
 To get the secure token and space id see the instructions here: https://pages.github.ibm.com/alchemy-logmet/getting-started/authentication.html
 
 ## Usage
- You must be using [log4js-node](https://github.com/nomiddlename/log4js-node) 3.x and must call `log4js.configure('/path/to/log4js.json')`
+ You must be using [log4js-node](https://github.com/nomiddlename/log4js-node) 3.x or 4.x, and must call `log4js.configure('/path/to/log4js.json')`
 somewhere in your code.
 
 You must add the following to the list of appenders in your `log4js.json` file:
