@@ -15,7 +15,7 @@
         "log4js": ">= 3 < 5"
     },
     "devDependencies": {
-        "eslint": "^2.10.2"
+        "eslint": "^6.0.1"
     },
     "main": "index.js",
     "scripts": {
