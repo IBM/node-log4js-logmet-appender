@@ -1,6 +1,6 @@
 {
     "name": "log4js-logmet-appender",
-    "version": "2.0.2",
+    "version": "3.0.0",
     "description": "Logmet appender for node-log4js",
     "author": "Herman Singh Badwal <hermanba@ca.ibm.com>",
     "license": "MIT",
